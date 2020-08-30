@@ -1,5 +1,5 @@
-# Xavier-CUDA-Mandelbrot-Viewer
-## A CUDA based Mandelbrot GTK viewer for the NVIDIA Xavier written in C++17
+# Xavier CUDA Mandelbrot Viewer
+## A CUDA based Mandelbrot viewer for the NVIDIA Xavier written in C++17 and rendered using GTK
 
 #### Prerequisites
 ```

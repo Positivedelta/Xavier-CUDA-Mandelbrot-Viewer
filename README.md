@@ -19,3 +19,10 @@ nvcc cuda_renderer.o mandelbrot.o -o mandelbrot `pkg-config --libs gtkmm-3.0` -g
 - An appropraite Makefile has been included in this repository, use: make clean all
 - Add -Xptxas=-v to the NVCC compiler options to obtain shared memory and register stats for a given kernel
 ```
+
+#### Example Render
+```
+An example render, zoomed in by a factor 2^46
+At this level of zoom, the pixelation is caused by the loss of precision in the 64 bit floating point calculations
+```
+<img src='https://github.com/Positivedelta/Xavier-CUDA-Mandelbrot-Viewer/blob/master/double_limit_x70368744177664.png' width='912' height='652'>

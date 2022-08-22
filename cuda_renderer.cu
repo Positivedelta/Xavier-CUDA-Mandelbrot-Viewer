@@ -6,7 +6,7 @@
 #include "cuda_renderer.hpp"
 
 //
-// nvcc -std=c++14 -O3 -c cuda_renderer.cu -o cuda_renderer.o
+// nvcc -std=c++14 -O3 -gencode arch=compute_72,code=sm_72 -Xptxas=-v -c cuda_renderer.cu -o cuda_renderer.o
 //
 
 __global__ void doMandelbrot(uint8_t *pixelBuffer, const int32_t pixelBufferSpan, const cuDoubleComplex start, const cuDoubleComplex step, const int32_t maxIterations)
@@ -15,7 +15,7 @@ __global__ void doMandelbrot(uint8_t *pixelBuffer, const int32_t pixelBufferSpan
     const int32_t y = threadIdx.y + blockIdx.y * blockDim.y;
     const cuDoubleComplex c = make_cuDoubleComplex(cuCreal(start) + (x * cuCreal(step)), cuCimag(start) + (y * cuCimag(step)));
 
-    // notes 1. using fma() as it rounds coping with NaN and +/-  infinities, (zReal^2 + zImag^2) doesn't and eventually fails
+    // notes 1. using fma() as it rounds coping with NaN and +/-  infinities, (zReal^2 + zImag^2) doesn't and eventually fail
     //       2. the GPU's fma(x, y, z) method efficiently computes (x * y) + z
     //       3. for speed, use (fabs(zReal) + fabs(zImag)) as an appromimation to norm(), however this does generate some minor artefacts
     //
@@ -42,7 +42,10 @@ __global__ void doMandelbrot(uint8_t *pixelBuffer, const int32_t pixelBufferSpan
     pixelBuffer[pixelAddr + 2] = b;
 }
 
-// note, the Xavier has 512 cores, hence using a block dimension of (32, 16)
+// FIXME! profile the kernel and optimise the number of threads per block, 512 is probably too many...
+//
+// notes 1, running with 512 threads per block, arranged in 2D, i.e. dim3(32, 16)
+//       2, the Xavier has 8 SMs (with 512 cores in total) and a Warp size of 32
 //
 CudaRenderer::CudaRenderer(const int32_t width, const int32_t height, const int32_t pixelBufferSpan):
     width(width), height(height), pixelBufferSpan(pixelBufferSpan), dimGrid(dim3(width / 32, height / 16)), dimBlock(dim3(32, 16)) {
